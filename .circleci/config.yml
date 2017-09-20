@@ -1,10 +1,22 @@
 version: 2
 jobs:
     build:
-        machine:
-            enabled: true
-            image: "circleci/classic:201709-01"
+        docker:
+            - image: "debian:stretch"
         steps:
-            - checkout
-
-
+            - run:
+                command: apt-get update
+            - run:
+                command: apt-get install -y python python-pip curl git
+            - run:
+                command: curl -sSL https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz -o docker.tgz
+            - run:
+                command: tar -xf docker.tgz
+            - run:
+                command: cp docker/* /usr/bin/
+            - run:
+                command: pip install awscli
+            - setup_remote_docker
+            - checkout:
+                path: src
+                
