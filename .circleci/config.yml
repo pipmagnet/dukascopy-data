@@ -16,5 +16,6 @@ jobs:
                 command: ./src/scripts/install-docker.sh
             - setup_remote_docker
             - run:
-                command: docker build -t ${DOCKER_IMAGE} src/job-docker
+                working_directory: "${CIRCLE_WORKING_DIRECTORY}/src"
+                command: ./scripts/build.sh
                 
