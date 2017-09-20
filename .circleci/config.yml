@@ -4,19 +4,17 @@ jobs:
         docker:
             - image: "debian:stretch"
         steps:
+            - checkout:
+                path: src
             - run:
                 command: apt-get update
             - run:
                 command: apt-get install -y python python-pip curl git
             - run:
-                command: curl -sSL https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz -o docker.tgz
-            - run:
-                command: tar -xf docker.tgz
-            - run:
-                command: cp docker/* /usr/bin/
-            - run:
                 command: pip install awscli
+            - run:
+                command: ./src/scripts/install-docker.sh
             - setup_remote_docker
-            - checkout:
-                path: src
+            - run:
+                command: docker build -t ${DOCKER_IMAGE} src/job.docker
                 
