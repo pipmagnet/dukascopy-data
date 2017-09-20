@@ -4,18 +4,20 @@ jobs:
         docker:
             - image: "debian:stretch"
         steps:
+            - run:
+                name: "Install dependencies"
+                command: apt-get update && apt-get install -y python python-pip curl git 
+            - run:
+                name: "Install aws cli"
+                command: pip install awscli
             - checkout:
                 path: src
             - run:
-                command: apt-get update
-            - run:
-                command: apt-get install -y python python-pip curl git
-            - run:
-                command: pip install awscli
-            - run:
+                name: "Install docker"
                 command: ./src/scripts/install-docker.sh
             - setup_remote_docker
             - run:
+                name: "Build job docker"
                 working_directory: "src"
                 command: ./scripts/build.sh
                 
