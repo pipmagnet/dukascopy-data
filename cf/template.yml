@@ -139,9 +139,24 @@ Resources:
         Properties:
             Code: 
                 ZipFile: |
+                    var AWS = requires("aws-sdk");
+
                     function start_fetch(event, context, callback) {
-                        callback(null);
+                        var batch = AWS.Batch();
+
+                        var jobparams = {
+                            jobDefinition: process.env.JOB_DEFINITION,
+                            jobName: "dukascopy-fetch-" + (new Date()).toUTCString(),
+                            jobQueue: process.env.JOB_QUEUE
+                        };
+
+                        batch.submitJob(jobparams, callback);
                     };
+
+            Environment:
+                Variables:
+                    JOB_DEFINITION: !Ref jobdefinition
+                    JOB_QUEUE: !Ref jobqueue
             Handler: "index.start_fetch"
             Role: !GetAtt functionrole.Arn
             Runtime: "nodejs6.10"
