@@ -134,7 +134,7 @@ Resources:
                     Action:
                         - "sts:AssumeRole"
             Policies:
-                - PolicyName: "lambda role for job triggering"
+                - PolicyName: "jobsubmission"
                   PolicyDocument:
                       Version: "2012-10-17"
                       Statement:
