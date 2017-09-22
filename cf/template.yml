@@ -195,7 +195,7 @@ Resources:
         Properties:
             ScheduleExpression: "rate(7 days)"
             Targets:
-                - Arn: !Ref function
+                - Arn: !GetAtt function.Arn
                   Id: "submitjobfunction"
                   RoleArn: !GetAtt schedulerole.Arn
 
