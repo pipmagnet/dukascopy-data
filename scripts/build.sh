@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-TAG=$(git rev-parse --short HEAD)
+TAG=${CIRCLE_BRANCH}
 
 docker build -t ${DOCKER_IMAGE}:${TAG} job-docker
 
