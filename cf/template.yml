@@ -133,6 +133,14 @@ Resources:
                         - "lambda.amazonaws.com"
                     Action:
                         - "sts:AssumeRole"
+            Policies:
+                - PolicyName: "lambda role for job triggering"
+                  PolicyDocument:
+                      Version: "2012-10-17"
+                      Statement:
+                          - Effect: "Allow"
+                            Action: "Batch:SubmitJob"
+                            Resource: "*"
 
     function:
         Type: "AWS::Lambda::Function"
@@ -142,7 +150,7 @@ Resources:
                     var AWS = require("aws-sdk");
 
                     exports.handler =  function(event, context, callback) {
-                        var batch = AWS.Batch();
+                        var batch = new AWS.Batch();
 
                         var jobparams = {
                             jobDefinition: process.env.JOB_DEFINITION,
