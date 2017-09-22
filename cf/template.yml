@@ -168,4 +168,36 @@ Resources:
             Handler: "index.handler"
             Role: !GetAtt functionrole.Arn
             Runtime: "nodejs6.10"
+
+    schedulerole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  - Effect: "Allow"
+                    Principal:
+                      Service:
+                        - "cloudwatch.amazonaws.com"
+                    Action:
+                        - "sts:AssumeRole"
+            Policies:
+                - PolicyName: "jobsubmission"
+                  PolicyDocument:
+                      Version: "2012-10-17"
+                      Statement:
+                          - Effect: "Allow"
+                            Action: "lambda:InvokeFunction"
+                            Resource: !GetAtt function.Arn
+
+    schedule:
+        Type: "AWS::Events::Rule"
+        Properties:
+            ScheduleExpression: "rate(7 days)"
+            Targets:
+                - Arn: !Ref function
+                  Id: "submitjobfunction"
+                  Role: !GetAtt schedulerole.Arn
+
+
 ...
