@@ -39,10 +39,10 @@ mid_date()
     local start_stamp=$(date_to_stamp "${1}")
     local end_stamp=$(date_to_stamp "${2}")
 
-    local mid_stamp=$(($start + $end))
-    local mid_stamp=$(($midstamp / 2))
+    local mid_stamp=$(($start_stamp + $end_stamp))
+    local mid_stamp=$(($mid_stamp / 2))
 
-    stamp_to_date "${mid_stamp}"
+    stamp_to_date "$mid_stamp"
 }
 
 s3_exists()
