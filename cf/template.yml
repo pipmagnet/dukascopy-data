@@ -113,6 +113,27 @@ Resources:
                 - ComputeEnvironment: !Ref batchenv
                   Order: 1
             Priority: 1
+
+    jobrole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  - Effect: "Allow"
+                    Principal:
+                      Service:
+                        - "ecs-tasks.amazonaws.com"
+                    Action:
+                        - "sts:AssumeRole"
+            Policies:
+                PolicyName: "s3 access"
+                PolicyDocument:
+                    Version: "2012-10-17"
+                    Statement:
+                        - Effect: "Allow"
+                          Action: "s3:*"
+                          Resource: "arn:aws:s3:::ticktech-data"
     
     jobdefinition:
         Type: "AWS::Batch::JobDefinition"
@@ -122,6 +143,7 @@ Resources:
                 Memory: 512
                 Vcpus: 1
                 Image: !Ref imageurl
+                JobRoleArn: !GetAtt jobrole.Arn
             RetryStrategy:
                 Attempts: 1
 

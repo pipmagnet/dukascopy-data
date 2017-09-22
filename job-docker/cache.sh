@@ -79,7 +79,7 @@ find_start()
 
     while true
     do 
-        local mid=$(mid_date "$1" "$2")
+        local mid=$(mid_date "$begin" "$end")
 
         if [ "x$mid" == "x$begin" -o "x$mid" == "x$end" ]
         then
