@@ -69,12 +69,12 @@ s3_exists()
 
 dukascopy_url()
 {
-    local date="${1}"
+    local dt="${1}"
     local hour="${2}"
 
-    local y="$(date_year "$date")"
-    local m="$(date_month "$date")"
-    local d="$(date_day "$date")"
+    local y=$(date_year $dt)
+    local m=$(date_month $dt)
+    local d=$(date_day $dt)
 
     if [ $hour -lt 10 ]
     then
@@ -136,6 +136,7 @@ extract()
 
 fetch_date()
 {
+    local dt="$1"
     local h=0
     local bi5=$(mktemp)
     local bin=$(mktemp)
@@ -143,7 +144,7 @@ fetch_date()
     while [ $h -lt 24 ]
     do
 
-        local url=$(dukascopy_url "$mid" 0)
+        local url=$(dukascopy_url "$dt" 0)
 
         if s3_exists "$BUCKET"  "${KEY_PREFIX}${url}"
         then
