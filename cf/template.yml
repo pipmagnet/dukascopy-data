@@ -134,7 +134,7 @@ Resources:
                         Statement:
                             - Effect: "Allow"
                               Action: "s3:*"
-                              Resource: "arn:aws:s3:::ticktech-data"
+                              Resource: "*"
     
     jobdefinition:
         Type: "AWS::Batch::JobDefinition"
