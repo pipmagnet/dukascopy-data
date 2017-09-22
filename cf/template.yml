@@ -154,7 +154,7 @@ Resources:
 
                         var jobparams = {
                             jobDefinition: process.env.JOB_DEFINITION,
-                            jobName: "dukascopy-fetch-" + (new Date()).toUTCString(),
+                            jobName: "dukascopy-fetch",
                             jobQueue: process.env.JOB_QUEUE
                         };
 
