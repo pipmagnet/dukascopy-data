@@ -137,10 +137,11 @@ Resources:
     function:
         Type: "AWS::Lambda::Function"
         Properties:
-            Code: |
-                function start_fetch(event, context, callback) {
-                    callback(null);
-                };
+            Code: 
+                ZipFile: |
+                    function start_fetch(event, context, callback) {
+                        callback(null);
+                    };
             Handler: "index.start_fetch"
             Role: !Ref functionrole
             Runtime: "nodejs6.10"
