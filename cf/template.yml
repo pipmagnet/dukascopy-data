@@ -197,7 +197,7 @@ Resources:
             Targets:
                 - Arn: !Ref function
                   Id: "submitjobfunction"
-                  Role: !GetAtt schedulerole.Arn
+                  RoleArn: !GetAtt schedulerole.Arn
 
 
 ...
