@@ -141,7 +141,7 @@ Resources:
                 ZipFile: |
                     var AWS = requires("aws-sdk");
 
-                    function start_fetch(event, context, callback) {
+                    exports.handler =  function(event, context, callback) {
                         var batch = AWS.Batch();
 
                         var jobparams = {
@@ -157,7 +157,7 @@ Resources:
                 Variables:
                     JOB_DEFINITION: !Ref jobdefinition
                     JOB_QUEUE: !Ref jobqueue
-            Handler: "index.start_fetch"
+            Handler: "index.handler"
             Role: !GetAtt functionrole.Arn
             Runtime: "nodejs6.10"
 ...
