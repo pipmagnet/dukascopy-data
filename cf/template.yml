@@ -157,7 +157,6 @@ Resources:
                             jobName: "dukascopy-fetch",
                             jobQueue: process.env.JOB_QUEUE
                         };
-
                         batch.submitJob(jobparams, callback);
                     };
 
