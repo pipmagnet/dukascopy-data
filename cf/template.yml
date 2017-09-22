@@ -178,7 +178,7 @@ Resources:
                   - Effect: "Allow"
                     Principal:
                       Service:
-                        - "cloudwatch.amazonaws.com"
+                        - "events.amazonaws.com"
                     Action:
                         - "sts:AssumeRole"
             Policies:
