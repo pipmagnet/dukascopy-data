@@ -139,7 +139,7 @@ Resources:
         Properties:
             Code: 
                 ZipFile: |
-                    var AWS = requires("aws-sdk");
+                    var AWS = require("aws-sdk");
 
                     exports.handler =  function(event, context, callback) {
                         var batch = AWS.Batch();
