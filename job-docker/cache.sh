@@ -56,7 +56,7 @@ s3_put()
     local key=$2
     local file=$3
 
-    aws s3api put-object --bucket "{bucket" --key "$key" --body "$file"
+    aws s3api put-object --bucket "$bucket" --key "$key" --body "$file"
 }
 
 s3_exists()
@@ -167,7 +167,7 @@ fetch_date()
 #end_date=$(date "$dateformat")
 end_date=20040105
 
-start_date=$(find_start 20040101 ${enddate})
+start_date=$(find_start 20040101 $end_date)
 
 
 while [ "x$start_date" != "x$end_date" ]
