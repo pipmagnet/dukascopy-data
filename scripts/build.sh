@@ -7,3 +7,11 @@ docker build -t ${DOCKER_IMAGE}:${TAG} job-docker
 `aws ecr get-login --registry-ids ${AWS_ACCOUNT_ID} --no-include-email`
 
 docker push ${DOCKER_IMAGE}:${TAG}
+
+if aws cloudformation describe-stacks --stack-name ${CF_STACK_NAME}
+then
+    aws cloudformation update-stack --stack-name ${CF_STACK_NAME} --template-body file://cf/template.yml --capabilities CAPABILITY_IAM
+else
+    aws cloudformation create-stack --stack-name ${CF_STACK_NAME} --template-body file://cf/template.yml --capabilities CAPABILITY_IAM
+fi
+

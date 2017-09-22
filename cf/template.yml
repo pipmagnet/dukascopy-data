@@ -1,0 +1,123 @@
+---
+AWSTemplateFormatVersion : "2010-09-09"
+Resources:
+    vpc:
+        Type: "AWS::EC2::VPC"
+        Properties:
+            CidrBlock: "10.0.0.0/16"
+
+    gateway:
+        Type: "AWS::EC2::InternetGateway"
+
+    gatewayattachment:
+        Type: "AWS::EC2::VPCGatewayAttachment"
+        Properties:
+            InternetGatewayId: !Ref gateway 
+            VpcId: !Ref vpc
+
+    routetable:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref vpc
+
+    gatewayroute:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationCidrBlock: "0.0.0.0/0"
+            GatewayId: !Ref gateway
+            RouteTableId: !Ref routetable
+        DependsOn: "gatewayattachment"
+
+    subnet:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            CidrBlock: "10.0.0.0/16"
+            VpcId: !Ref vpc
+            MapPublicIpOnLaunch: true
+
+    routetableassociation:
+        Type: "AWS::EC2::SubnetRouteTableAssociation"
+        Properties:
+            RouteTableId: !Ref routetable
+            SubnetId: !Ref subnet 
+
+    securitygroup:
+        Type: "AWS::EC2::SecurityGroup"
+        Properties:
+            GroupDescription: "only outbound"
+            VpcId: !Ref vpc
+
+
+    batchservicerole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  - Effect: "Allow"
+                    Principal:
+                      Service:
+                        - "batch.amazonaws.com"
+                    Action:
+                        - "sts:AssumeRole"
+            ManagedPolicyArns:
+              - "arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole"
+
+    instancerole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                    - Effect: "Allow"
+                      Principal:
+                          Service:
+                              - "ec2.amazonaws.com"
+                      Action:
+                           - "sts:AssumeRole"
+            ManagedPolicyArns:
+                - "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+
+    instanceprofile:
+        Type: "AWS::IAM::InstanceProfile"
+        Properties:
+            Roles:
+                - !Ref instancerole
+                   
+
+    batchenv:
+        Type: "AWS::Batch::ComputeEnvironment"
+        Properties:
+            Type: "Managed"
+            ServiceRole: !Ref batchservicerole
+            ComputeResources:
+                Type: "EC2"
+                Subnets: 
+                    - !Ref subnet
+                MinvCpus: 0
+                MaxvCpus: 1
+                SecurityGroupIds:
+                    - !Ref securitygroup
+                InstanceRole: !Ref instanceprofile
+                InstanceTypes:
+                    - "m3.medium"
+
+    jobqueue:
+        Type: "AWS::Batch::JobQueue"
+        Properties:
+            ComputeEnvironmentOrder:
+                - ComputeEnvironment: !Ref batchenv
+                  Order: 1
+            Priority: 1
+    
+    jobdefinition:
+        Type: "AWS::Batch::JobDefinition"
+        Properties:
+            Type: "container"
+            ContainerProperties:
+                Memory: 512
+                Vcpus: 1
+                Image: "hello-world"
+            RetryStrategy:
+                Attempts: 1
+
