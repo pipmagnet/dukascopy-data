@@ -143,6 +143,6 @@ Resources:
                         callback(null);
                     };
             Handler: "index.start_fetch"
-            Role: !Ref functionrole
+            Role: !GetAtt functionrole.Arn
             Runtime: "nodejs6.10"
 ...
