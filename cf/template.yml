@@ -1,5 +1,9 @@
 ---
 AWSTemplateFormatVersion : "2010-09-09"
+Parameters:
+    imageurl:
+        Type: "String"
+
 Resources:
     vpc:
         Type: "AWS::EC2::VPC"
@@ -117,7 +121,7 @@ Resources:
             ContainerProperties:
                 Memory: 512
                 Vcpus: 1
-                Image: "hello-world"
+                Image: !Ref imageurl
             RetryStrategy:
                 Attempts: 1
 
