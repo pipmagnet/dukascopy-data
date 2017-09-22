@@ -55,9 +55,8 @@ s3_exists()
 
 dukascopy_url()
 {
-    local instrument="${1}"
-    local date="${2}"
-    local hour="${3}"
+    local date="${1}"
+    local hour="${2}"
 
     local y="$(date_year "$date")"
     local m="$(date_month "$date")"
