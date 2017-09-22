@@ -169,26 +169,6 @@ Resources:
             Role: !GetAtt functionrole.Arn
             Runtime: "nodejs6.10"
 
-    schedulerole:
-        Type: "AWS::IAM::Role"
-        Properties:
-            AssumeRolePolicyDocument:
-                Version: "2012-10-17"
-                Statement:
-                  - Effect: "Allow"
-                    Principal:
-                      Service:
-                        - "events.amazonaws.com"
-                    Action:
-                        - "sts:AssumeRole"
-            Policies:
-                - PolicyName: "jobsubmission"
-                  PolicyDocument:
-                      Version: "2012-10-17"
-                      Statement:
-                          - Effect: "Allow"
-                            Action: "lambda:InvokeFunction"
-                            Resource: !GetAtt function.Arn
 
     schedule:
         Type: "AWS::Events::Rule"
@@ -197,4 +177,12 @@ Resources:
             Targets:
                 - Arn: !GetAtt function.Arn
                   Id: "submitjobfunction"
+
+    functionpermission:
+        Type: "AWS::Lambda::Permission"
+        Properties:
+            Action: "lambda:InvokeFunction"
+            FunctionName: !Ref function
+            Principal: "events.amazonaws.com"
+            SourceArn: !GetAtt schedule.Arn
 ...
