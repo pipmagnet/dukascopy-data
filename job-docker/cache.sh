@@ -39,7 +39,8 @@ mid_date()
     local start_stamp=$(date_to_stamp "${1}")
     local end_stamp=$(date_to_stamp "${2}")
 
-    local mid_stamp=$((${start} + ${end}) / 2)
+    local mid_stamp=$(($start + $end))
+    local mid_stamp=$(($midstamp / 2))
 
     stamp_to_date "${mid_stamp}"
 }
@@ -85,8 +86,8 @@ find_start()
             break
         fi
 
-        local url=$(dukascopy_url "$mid")
-        if s3_exists "$BUCKET"  "${KEY_PREFIX}${url}" 0
+        local url=$(dukascopy_url "$mid" 0)
+        if s3_exists "$BUCKET"  "${KEY_PREFIX}${url}"
         then
             begin="$mid"
         else
