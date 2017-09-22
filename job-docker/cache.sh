@@ -33,6 +33,11 @@ stamp_to_date()
     date --date "@${1}"  "${dateformat}"
 }
 
+next_date()
+{
+    date -d "${1}+1 day" "$dateformat"
+}
+
 
 mid_date()
 {
@@ -43,6 +48,15 @@ mid_date()
     local mid_stamp=$(($mid_stamp / 2))
 
     stamp_to_date "$mid_stamp"
+}
+
+s3_put()
+{
+    local bucket=$1
+    local key=$2
+    local file=$3
+
+    aws s3api put-object --bucket "{bucket" --key "$key" --body "$file"
 }
 
 s3_exists()
@@ -97,4 +111,68 @@ find_start()
     echo "$begin"
 }
 
-find_start 20040101 $(date "$dateformat")
+download()
+{
+    local url="${1}"
+    local output="${2}"
+
+	curl -sSL "${output}" -o "${url}"
+}
+
+extract()
+{
+    local input="${1}"
+    local output="${2}"
+
+	local filesize="$(wc -c <${input})"
+
+	if [ "${filesize}" -gt 0 ]
+    then
+	    xz -d -c "${input}" > "${output}"
+	else
+	    touch "${output}"
+	fi
+}
+
+fetch_date()
+{
+    local h=0
+    local bi5=$(mktemp)
+    local bin=$(mktemp)
+
+    while [ $h -lt 24 ]
+    do
+
+        local url=$(dukascopy_url "$mid" 0)
+
+        if s3_exists "$BUCKET"  "${KEY_PREFIX}${url}"
+        then
+            :
+        else
+            download $dukascopy_base_url/$url $bi5
+            extract $bi5 $bin
+            s3_put "$BUCKET" "${KEY_PREFIX}${url}" "$bin"
+
+            end="$mid"
+        fi
+
+        h=$(($h + 1))
+    done
+
+
+    rm $bi5 $bin
+}
+
+#end_date=$(date "$dateformat")
+end_date=20040105
+
+start_date=$(find_start 20040101 ${enddate})
+
+
+while [ "x$start_date" != "x$end_date" ]
+do
+    fetch_date $start_date
+
+    start_date=$(next_date $start_date)
+done
+
