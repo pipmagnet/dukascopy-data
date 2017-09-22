@@ -116,7 +116,7 @@ download()
     local url="${1}"
     local output="${2}"
 
-	curl -sSL "${url}" -o "${output}"
+	curl -fsSL "${url}" -o "${output}"
 }
 
 extract()
