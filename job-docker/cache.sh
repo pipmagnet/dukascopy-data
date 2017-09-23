@@ -144,7 +144,7 @@ fetch_date()
     while [ $h -lt 24 ]
     do
 
-        local url=$(dukascopy_url "$dt" 0)
+        local url=$(dukascopy_url "$dt" $h)
 
         if s3_exists "$BUCKET"  "${KEY_PREFIX}${url}"
         then
