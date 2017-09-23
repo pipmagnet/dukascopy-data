@@ -108,7 +108,7 @@ find_start()
 
         local url=$(dukascopy_url "$mid" 0)
         local binurl=$(echo $url | sed 's/bi5$/bin/')
-        if s3_exists "$BUCKET"  "${KEY_PREFIX}${binurl}"
+        if s3_exists "$BUCKET"  "${KEY_PREFIX}${binurl}" > /dev/null
         then
             begin="$mid"
         else
