@@ -83,6 +83,11 @@ dukascopy_url()
         hour="0$hour"
     fi
 
+    if [ $m -lt 10 ]
+    then
+        m="0$m"
+    fi
+
     echo "${y}/${m}/${d}/${hour}h_ticks.bi5"
 }
 
