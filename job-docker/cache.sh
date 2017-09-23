@@ -172,8 +172,7 @@ fetch_date()
     rm $bi5 $bin
 }
 
-#end_date=$(date "$dateformat")
-end_date=20040105
+end_date=$(date "$dateformat")
 
 start_date=$(find_start 20040101 $end_date)
 
