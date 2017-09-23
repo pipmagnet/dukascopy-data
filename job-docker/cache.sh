@@ -44,8 +44,8 @@ mid_date()
     local start_stamp=$(date_to_stamp "${1}")
     local end_stamp=$(date_to_stamp "${2}")
 
-    local mid_stamp=$(($start_stamp + $end_stamp))
-    local mid_stamp=$(($mid_stamp / 2))
+    local mid_stamp=$(expr $start_stamp + $end_stamp)
+    local mid_stamp=$(expr $mid_stamp / 2)
 
     stamp_to_date "$mid_stamp"
 }
@@ -76,7 +76,7 @@ dukascopy_url()
     local m=$(date_month $dt)
     local d=$(date_day $dt)
 
-    m=$(($m - 1))
+    m=$(expr $m - 1)
 
     if [ $hour -lt 10 ]
     then
@@ -154,7 +154,7 @@ fetch_date()
         local url=$(dukascopy_url "$dt" $h)
         local binurl=$(echo $url | sed 's/bi5$/bin/')
 
-        if s3_exists "$BUCKET"  "${KEY_PREFIX}${url}"
+        if s3_exists "$BUCKET"  "${KEY_PREFIX}${binurl}"
         then
             :
         else
@@ -165,7 +165,7 @@ fetch_date()
             end="$mid"
         fi
 
-        h=$(($h + 1))
+        h=$(expr $h + 1)
     done
 
 
