@@ -152,6 +152,7 @@ fetch_date()
     do
 
         local url=$(dukascopy_url "$dt" $h)
+        local binurl=$(echo $url | sed 's/bi5$/bin/')
 
         if s3_exists "$BUCKET"  "${KEY_PREFIX}${url}"
         then
@@ -159,7 +160,7 @@ fetch_date()
         else
             download $dukascopy_base_url/$url $bi5
             extract $bi5 $bin
-            s3_put "$BUCKET" "${KEY_PREFIX}${url}" "$bin"
+            s3_put "$BUCKET" "${KEY_PREFIX}${binurl}" "$bin"
 
             end="$mid"
         fi
