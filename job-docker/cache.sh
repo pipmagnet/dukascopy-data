@@ -76,6 +76,8 @@ dukascopy_url()
     local m=$(date_month $dt)
     local d=$(date_day $dt)
 
+    m=$(($m - 1))
+
     if [ $hour -lt 10 ]
     then
         hour="0$hour"
