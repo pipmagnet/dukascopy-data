@@ -88,6 +88,20 @@ Resources:
             Roles:
                 - !Ref instancerole
                    
+    spotfleetrole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                    - Effect: "Allow"
+                      Principal:
+                          Service:
+                              - "spotfleet.amazonaws.com"
+                      Action:
+                          - "sts:AssumeRole"
+            ManagedPolicyArns:
+                - "arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetRole"
 
     batchenv:
         Type: "AWS::Batch::ComputeEnvironment"
@@ -95,7 +109,10 @@ Resources:
             Type: "Managed"
             ServiceRole: !Ref batchservicerole
             ComputeResources:
-                Type: "EC2"
+                Type: "SPOT"
+                InstanceTypes:
+                    - "m3.medium"
+                BidPercentage: 20
                 Subnets: 
                     - !Ref subnet
                 MinvCpus: 0
@@ -103,8 +120,7 @@ Resources:
                 SecurityGroupIds:
                     - !Ref securitygroup
                 InstanceRole: !Ref instanceprofile
-                InstanceTypes:
-                    - "m3.medium"
+                SpotIamFleetRole: !GetAtt spotfleetrole.Arn
 
     jobqueue:
         Type: "AWS::Batch::JobQueue"
