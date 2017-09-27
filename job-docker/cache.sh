@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 
 BUCKET="ticktech-data"
 KEY_PREFIX="dukascopy/EURUSD/"
@@ -180,6 +180,7 @@ start_date=$(find_start 20040101 $end_date)
 
 while [ "x$start_date" != "x$end_date" ]
 do
+    echo fetching $start_date
     fetch_date $start_date
 
     start_date=$(next_date $start_date)
