@@ -1,0 +1,18 @@
+{
+  "name": "dukascopy-fetcher",
+  "version": "1.0.0",
+  "description": "Fetch historical fx ticks from dukascopy and store in AWS S3",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Fabian van der Werf <fvanderwerf@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.124.0",
+    "leftpad": "0.0.1",
+    "lzma-native": "^3.0.1",
+    "request": "^2.83.0",
+    "stream-buffers": "^3.0.1"
+  }
+}

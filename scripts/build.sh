@@ -2,7 +2,7 @@
 
 TAG=${CIRCLE_BRANCH}
 
-docker build -t ${DOCKER_IMAGE}:${TAG} job-docker
+docker build -t ${DOCKER_IMAGE}:${TAG} .
 
 `aws ecr get-login --registry-ids ${AWS_ACCOUNT_ID} --no-include-email`
 
