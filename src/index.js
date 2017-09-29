@@ -8,7 +8,7 @@ const lzma = require("lzma-native");
 const fs = require("fs");
 const streamBuffers = require("stream-buffers");
 
-const bucket = "ticktech-data-test";
+const bucket = "ticktech-data";
 
 var s3 = new AWS.S3();
 
