@@ -103,7 +103,7 @@ function fetch_date(date, callback)
 
     bi5stream.on('response', (response) =>  {
             var decomp = null;
-            if (response.headers['content-length'] == 162) {
+            if (response.headers['content-length'] > 0) {
                 decomp = lzma.createDecompressor();
             } else {
                 decomp = new stream.PassThrough();
