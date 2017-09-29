@@ -71,12 +71,12 @@ function bin_search(start, end, callback)
     date_to_hour(start);
     date_to_hour(end);
 
-    var mid = mid_date(start, end);
-
-    if (mid.getTime() == start.getTime() || mid.getTime() == end.getTime()) {
-        callback(null, end);
+    if (start.getTime() == end.getTime()) {
+        callback(null, start);
         return;
     }
+
+    var mid = mid_date(start, end);
 
     const key = s3_key(mid);
 
