@@ -77,6 +77,7 @@ function bin_search(start, end, callback)
     }
 
     var mid = mid_date(start, end);
+    console.log("probe " + mid);
 
     const key = s3_key(mid);
 
