@@ -159,6 +159,8 @@ function fetch_range(start, end, callback) {
 
 var start = new Date(Date.UTC(2004, 0, 1));
 var end = new Date(Date.now());
+/* substract one hour, an hour must be passed completely before we can fetch it */
+end.setHours(end.getHours() - 1);
 
 bin_search(
     start,
