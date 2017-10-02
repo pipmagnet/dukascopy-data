@@ -71,7 +71,7 @@ function bin_search(start, end, callback)
     date_to_hour(start);
     date_to_hour(end);
 
-    if (end.getTime() - start.getTime() <= 1000 * 60 * 60 * 24) {
+    if (end.getTime() - start.getTime() <= 1000 * 60 * 60) {
         const key = s3_key(start);
         /* check if start exists, if not then start should returned
          * otherwise end */
