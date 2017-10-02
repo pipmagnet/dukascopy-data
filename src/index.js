@@ -75,13 +75,14 @@ function bin_search(start, end, callback)
         const key = s3_key(start);
         /* check if start exists, if not then start should returned
          * otherwise end */
-        s3_exists(key, function(err, data)) {
+        s3_exists(key, function(err, data) {
             if (err) callback(err);
             if (data) {
                 if (data.exists) 
                     callback(null, end);
                 else
                     callback(null, start);
+            }
         });
         return;
     }
