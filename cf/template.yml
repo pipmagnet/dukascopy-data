@@ -161,8 +161,15 @@ Resources:
                 Vcpus: 1
                 Image: !Ref imageurl
                 JobRoleArn: !GetAtt jobrole.Arn
+                Command:
+                    - node
+                    - /app/index.js
+                    - -i
+                    - Ref::instrument
             RetryStrategy:
                 Attempts: 1
+            Parameters:
+                instrument: "EURUSD"
 
     functionrole:
         Type: "AWS::IAM::Role"
