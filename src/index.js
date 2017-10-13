@@ -7,11 +7,19 @@ const stream = require("stream");
 const lzma = require("lzma-native");
 const fs = require("fs");
 const streamBuffers = require("stream-buffers");
+const minimist = require("minimist");
 
 const bucket = "ticktech-data";
 
-var s3 = new AWS.S3();
+const args = minimist(process.argv.slice(2), {
+    default: {
+        i: "EURUSD"
+    }
+});
 
+const instrument = args.i;
+
+var s3 = new AWS.S3();
 
 function date_to_hour(date)
 {
@@ -31,7 +39,8 @@ function mid_date(start, end)
 
 function dukascopy_url(date)
 {
-    return util.format("http://dukascopy.com/datafeed/EURUSD/%s/%s/%s/%sh_ticks.bi5",
+    return util.format("http://dukascopy.com/datafeed/%s/%s/%s/%s/%sh_ticks.bi5",
+        instrument,
         left_pad(date.getUTCFullYear(), 4, "0"),
         left_pad(date.getUTCMonth(), 2, "0"),
         left_pad(date.getUTCDate(), 2, "0"),
@@ -40,7 +49,8 @@ function dukascopy_url(date)
 
 function s3_key(date)
 {
-    return util.format("dukascopy/EURUSD/%s/%s/%s/%sh_ticks.bin",
+    return util.format("dukascopy/%s/%s/%s/%s/%sh_ticks.bin",
+        instrument,
         left_pad(date.getUTCFullYear(), 4, "0"),
         left_pad(date.getUTCMonth(), 2, "0"),
         left_pad(date.getUTCDate(), 2, "0"),
