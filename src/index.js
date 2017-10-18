@@ -123,7 +123,9 @@ function fetch_date(date, callback)
 
     var bi5stream = request.get(url);
 
-    bi5stream.on('response', (response) =>  {
+    bi5stream
+        .on('error',  callback)
+	.on('response', (response) =>  {
             var decomp = null;
             if (response.headers['content-length'] > 0) {
                 decomp = lzma.createDecompressor();
@@ -137,14 +139,19 @@ function fetch_date(date, callback)
 
             bi5stream
                 .pipe(decomp)
+                .on('error',  callback)
                 .pipe(buffer)
                 .on('error',  callback)
                 .on('finish', () => {
-                    s3.putObject({
-                        "Bucket": bucket,
-                        "Key": key,
-                        "Body": buffer.size() > 0 ? buffer.getContents() : ""
-                    }, callback);
+                    if (buffer.size() % 20 != 0)) {
+			callback("invalid dukascopy tickfile");
+                    } else {
+                        s3.putObject({
+                            "Bucket": bucket,
+                            "Key": key,
+                            "Body": buffer.size() > 0 ? buffer.getContents() : ""
+                        }, callback);
+	            }
                 });
     });
 }
