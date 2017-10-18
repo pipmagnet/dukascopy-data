@@ -205,7 +205,10 @@ Resources:
                         var jobparams = {
                             jobDefinition: process.env.JOB_DEFINITION,
                             jobName: "dukascopy-fetch",
-                            jobQueue: process.env.JOB_QUEUE
+                            jobQueue: process.env.JOB_QUEUE,
+                            parameters: {
+                                instrument: "EURUSD"
+                            }
                         };
                         batch.submitJob(jobparams, callback);
                     };
