@@ -143,7 +143,7 @@ function fetch_date(date, callback)
                 .pipe(buffer)
                 .on('error',  callback)
                 .on('finish', () => {
-                    if (buffer.size() % 20 != 0)) {
+                    if (buffer.size() % 20 != 0) {
 			callback("invalid dukascopy tickfile");
                     } else {
                         s3.putObject({
