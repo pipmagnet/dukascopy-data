@@ -8,5 +8,5 @@
 STDERR=$(( aws cloudformation "$@" ) 2>&1)
 ERROR_CODE=$?
 echo ${STDERR} 1>&2
-if [[ "${ERROR_CODE}" -eq "255" && "${STDERR}" =~ "No changes to deploy" ]]; then exit 0; fi 
+if [[ "${ERROR_CODE}" -eq "255" && "${STDERR}" =~ "The submitted information didn't contain changes" ]]; then exit 0; fi 
 exit ${ERROR_CODE}
