@@ -14,10 +14,10 @@ jobs:
                 path: src
             - run:
                 name: "Install docker"
-                command: ./src/scripts/install-docker.sh
+                command: ./src/bin/install-docker.sh
             - setup_remote_docker
             - run:
                 name: "Build job docker"
                 working_directory: "src"
-                command: ./scripts/build.sh
+                command: ./bin/build.sh
                 
