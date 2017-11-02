@@ -126,6 +126,7 @@ function fetch_date(date, callback)
     bi5stream
         .on('error',  callback)
 	.on('response', (response) =>  {
+	    console.log(response.statusCode + " " + response.statusMessage);
             var decomp = null;
             if (response.headers['content-length'] > 0) {
                 decomp = lzma.createDecompressor();
