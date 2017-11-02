@@ -211,6 +211,12 @@ Resources:
                             }
                         };
                         batch.submitJob(jobparams, callback);
+
+                        jobparams.parameters.instrument = "GBPUSD";
+                        batch.submitJob(jobparams, callback);
+
+                        jobparams.parameters.instrument = "EURGBP";
+                        batch.submitJob(jobparams, callback);
                     };
 
             Environment:
