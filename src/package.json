@@ -9,13 +9,16 @@
   "author": "Fabian van der Werf <fvanderwerf@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.124.0",
+    "aws-sdk": "^2.249.1",
     "chai": "^4.1.2",
     "leftpad": "0.0.1",
-    "lzma-native": "^3.0.1",
+    "lzma-native": "^3.0.8",
     "minimist": "^1.2.0",
     "mocha": "^4.0.1",
-    "request": "^2.83.0",
+    "nan": "^2.10.0",
+    "node-gyp": "^3.6.2",
+    "node-pre-gyp": "^0.10.0",
+    "request": "^2.87.0",
     "stream-buffers": "^3.0.1"
   }
 }
