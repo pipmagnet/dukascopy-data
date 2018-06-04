@@ -32,7 +32,6 @@ Resources:
                 Repo: dukascopy-data
                 Branch: master
                 OAuthToken: !Ref GitHubOAuthToken
-                PollForSourceChanges: false
               OutputArtifacts:
                 - Name: source
         - Name: Build
