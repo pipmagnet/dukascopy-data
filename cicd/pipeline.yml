@@ -30,7 +30,6 @@ Resources:
               Configuration:
                 Owner: pipmagnet
                 Repo: dukascopy-data
-                PollForSourceChanges: false
                 Branch: master
                 OAuthToken: !Ref GitHubOAuthToken
               OutputArtifacts:
