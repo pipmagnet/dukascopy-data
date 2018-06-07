@@ -71,7 +71,7 @@ function bin_search(start, end, callback)
         store.exists(key, function(err, exists) {
             if (err)
                 callback(err);
-            else if (exists) 
+            else if (exists)
                 callback(null, end);
             else
                 callback(null, start);
@@ -97,44 +97,53 @@ function bin_search(start, end, callback)
 
 function fetch_date(date, callback)
 {
-    console.log(date);
-
     const url = dukascopy_url(date);
     const key = s3_key(date);
 
-    var bi5stream = request.get(url);
+    new Promise(function(resolve, reject) {
+        console.log("Requesting " + url + " ...");
 
-    bi5stream
-        .on('error',  callback)
-        .on('response', (response) =>  {
+        request({
+            "url": url,
+            "encoding": null
+        }, function(err, response, body) {
+            console.log(response.statusCode);
+            if (err)
+                reject(err);
+            else if (response.statusCode / 100 != 2)
+                reject("HTTP error " + response.statusCode);
+            else
+                resolve(body);
+        });
+    })
+    .then(function(body) {
+        if (body.length == 0)
+            return body
+        else
+            return lzma.decompress(body);
+    })
+    .then(function(tickdata) {
+        return new Promise(function(resolve, reject) {
 
-            console.log(response.statusCode + " " + response.statusMessage);
-
-            var decomp = null;
-            if (response.headers['content-length'] > 0) {
-                decomp = lzma.createDecompressor();
-            } else {
-                decomp = new stream.PassThrough();
+            function cb(err) {
+                if (err == null)
+                    resolve();
+                else
+                    reject(err);
             }
 
-            var buffer = new streamBuffers.WritableStreamBuffer({
-                initialSize: (100*1024)
-            });
-
-            bi5stream
-                .pipe(decomp)
-                .on('error',  callback)
-                .pipe(buffer)
-                .on('error',  callback)
-                .on('finish', () => {
-                    console.log("storing file");
-                    if (buffer.size() % 20 != 0)
-                        callback("invalid dukascopy tickfile");
-                    else if (buffer.size() > 0)
-                        store.put(key, buffer.getContents(), callback);
-                    else
-                        store.put(key, Buffer.alloc(0), callback);
-                });
+            if (tickdata.length % 20 != 0)
+                reject("invalid dukascopy tickfile");
+            else
+                store.put(key, tickdata, cb);
+        });
+    })
+    .then(function() { callback() })
+    .catch(function(err) {
+        if (err)
+            callback(err);
+        else
+            callback(Error("Failed download tickdata"));
     });
 }
 
@@ -146,11 +155,11 @@ function fetch_range(start, end, callback) {
             var hours = start.getUTCHours();
             start.setUTCHours(hours + 1);
 
-            if (start > end) {
-                callback();
-            } else {
+            //if (start > end) {
+                //callback();
+            //} else {
                 fetch_range(start, end, callback);
-            }
+            //}
         }
     });
 }
