@@ -163,7 +163,7 @@ Resources:
                 JobRoleArn: !GetAtt jobrole.Arn
                 Command:
                     - node
-                    - /app/index.js
+                    - /usr/src/app/index.js
                     - -i
                     - Ref::instrument
             RetryStrategy:
