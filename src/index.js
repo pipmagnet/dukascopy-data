@@ -2,12 +2,13 @@
 const request = require("request");
 const left_pad = require("leftpad");
 const util = require("util");
-const AWS = require("aws-sdk");
 const stream = require("stream");
 const lzma = require("lzma-native");
 const fs = require("fs");
 const streamBuffers = require("stream-buffers");
 const minimist = require("minimist");
+
+const s3store = require("./s3.js");
 
 const bucket = "ticktech-data";
 
@@ -19,7 +20,7 @@ const args = minimist(process.argv.slice(2), {
 
 const instrument = args.i;
 
-var s3 = new AWS.S3();
+const store = new s3store.store(bucket);
 
 function date_to_hour(date)
 {
@@ -57,24 +58,6 @@ function s3_key(date)
         left_pad(date.getUTCHours(), 2, "0"));
 }
 
-function s3_exists(key, callback)
-{
-    s3.headObject({
-        "Bucket": bucket,
-        "Key": key
-    }, function(err, data) {
-        if (err == null) {
-            callback(null, { exists: true});
-        } else {
-            if (err.code == "NotFound") {
-                callback(null, { exists: false});
-            } else {
-                callback(err);
-            }
-        }
-    });
-}
-
 
 function bin_search(start, end, callback)
 {
@@ -85,14 +68,13 @@ function bin_search(start, end, callback)
         const key = s3_key(start);
         /* check if start exists, if not then start should returned
          * otherwise end */
-        s3_exists(key, function(err, data) {
-            if (err) callback(err);
-            if (data) {
-                if (data.exists) 
-                    callback(null, end);
-                else
-                    callback(null, start);
-            }
+        store.exists(key, function(err, exists) {
+            if (err)
+                callback(err);
+            else if (exists) 
+                callback(null, end);
+            else
+                callback(null, start);
         });
         return;
     }
@@ -102,14 +84,13 @@ function bin_search(start, end, callback)
 
     const key = s3_key(mid);
 
-    s3_exists(key, function(err, data) {
-        if (err) callback(err);
-        if (data) {
-            if (data.exists)
-                bin_search(mid, end, callback);
-            else
-                bin_search(start, mid, callback);
-        }
+    store.exists(key, function(err, exists) {
+        if (err)
+            callback(err);
+        else if (exists)
+            bin_search(mid, end, callback);
+        else
+            bin_search(start, mid, callback);
     });
 }
 
@@ -125,8 +106,10 @@ function fetch_date(date, callback)
 
     bi5stream
         .on('error',  callback)
-	.on('response', (response) =>  {
-	    console.log(response.statusCode + " " + response.statusMessage);
+        .on('response', (response) =>  {
+
+            console.log(response.statusCode + " " + response.statusMessage);
+
             var decomp = null;
             if (response.headers['content-length'] > 0) {
                 decomp = lzma.createDecompressor();
@@ -144,15 +127,13 @@ function fetch_date(date, callback)
                 .pipe(buffer)
                 .on('error',  callback)
                 .on('finish', () => {
-                    if (buffer.size() % 20 != 0) {
-			callback("invalid dukascopy tickfile");
-                    } else {
-                        s3.putObject({
-                            "Bucket": bucket,
-                            "Key": key,
-                            "Body": buffer.size() > 0 ? buffer.getContents() : ""
-                        }, callback);
-	            }
+                    console.log("storing file");
+                    if (buffer.size() % 20 != 0)
+                        callback("invalid dukascopy tickfile");
+                    else if (buffer.size() > 0)
+                        store.put(key, buffer.getContents(), callback);
+                    else
+                        store.put(key, Buffer.alloc(0), callback);
                 });
     });
 }
