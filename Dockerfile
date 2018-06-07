@@ -1,10 +1,12 @@
 
 FROM node:8.6.0-alpine
 
-ADD src /app
+WORKDIR /usr/src/app
 
-RUN cd /app && npm install
+COPY src/package*.json ./
 
-RUN cd /app && npm test
+RUN npm install
 
-CMD ["node", "/app/index.js"]
+COPY src/. ./
+
+CMD ["npm", "start"]
