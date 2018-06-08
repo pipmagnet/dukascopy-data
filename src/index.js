@@ -68,19 +68,13 @@ function bin_search(start, end, callback)
         const key = s3_key(start);
         /* check if start exists, if not then start should returned
          * otherwise end */
-        store.exists(key)
+        return store.exists(key)
         .then(function(does_exist) {
             if (does_exist)
-                callback(null, end);
+                return end;
             else
-                callback(null, start);
+                return start;
         })
-        .catch(function(error) {
-            if (error)
-                callback(error);
-            else
-                callback(Error("store exists failed"));
-        });
         return;
     }
 
@@ -89,23 +83,17 @@ function bin_search(start, end, callback)
 
     const key = s3_key(mid);
 
-    store.exists(key)
+    return store.exists(key)
     .then(function(does_exist) {
         if (does_exist)
-            bin_search(mid, end, callback);
+            return bin_search(mid, end, callback);
         else
-            bin_search(start, mid, callback);
-    })
-    .catch(function(error) {
-        if (error)
-            callback(error);
-        else
-            callback(Error("store exists failed"));
+            return bin_search(start, mid, callback);
     });
 }
 
 
-function fetch_date(date, callback)
+function fetch_date(date)
 {
     const url = dukascopy_url(date);
     const key = s3_key(date);
@@ -143,15 +131,13 @@ function fetch_date(date, callback)
     });
 }
 
-function fetch_range(start, end, callback) {
-    fetch_date(start)
+function fetch_range(start, end) {
+    return fetch_date(start)
     .then(function() {
         start.add(1, "hours");
 
-        if (start.isAfter(end))
-            callback();
-        else
-            fetch_range(start, end, callback);
+        if (!start.isAfter(end))
+            return fetch_range(start, end);
     });
 }
 
@@ -164,13 +150,8 @@ end.subtract(1, "hours");
 
 bin_search(
     start,
-    end,
-    function(err, data) {
-        if (err) console.log(err);
-        if (data) {
-            fetch_range(data, end, function(err) {
-                if (err) console.log(err);
-            });
-        }
-    }
-);
+    end)
+.then(function(start_date) {
+    return fetch_range(start_date, end);
+})
+.catch(console.log);
