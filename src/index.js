@@ -20,49 +20,51 @@ const args = minimist(process.argv.slice(2), {
 const instrument = args.i;
 const store = new s3store.store(args.b);
 
-function date_to_hour(date)
+function floor_to_hour(date)
 {
-    date.setUTCMinutes(0);
-    date.setUTCSeconds(0);
-    date.setUTCMilliseconds(0);
+    date.minutes(0);
+    date.seconds(0);
+    date.milliseconds(0);
 }
 
 function mid_date(start, end)
 {
-    var date = new Date((start.valueOf() + end.valueOf())/ 2);
+    const middate = start.clone();
+    const diff = moment.duration(end.diff(start) / 2);
+    middate.add(diff);
 
-    date_to_hour(date);
+    floor_to_hour(middate);
 
-    return date;
+    return middate;
 }
 
 function dukascopy_url(date)
 {
     return util.format("http://dukascopy.com/datafeed/%s/%s/%s/%s/%sh_ticks.bi5",
         instrument,
-        left_pad(date.getUTCFullYear(), 4, "0"),
-        left_pad(date.getUTCMonth(), 2, "0"),
-        left_pad(date.getUTCDate(), 2, "0"),
-        left_pad(date.getUTCHours(), 2, "0"));
+        left_pad(date.year(), 4, "0"),
+        left_pad(date.month(), 2, "0"),
+        left_pad(date.date(), 2, "0"),
+        left_pad(date.hour(), 2, "0"));
 }
 
 function s3_key(date)
 {
     return util.format("dukascopy/%s/%s/%s/%s/%sh_ticks.bin",
         instrument,
-        left_pad(date.getUTCFullYear(), 4, "0"),
-        left_pad(date.getUTCMonth(), 2, "0"),
-        left_pad(date.getUTCDate(), 2, "0"),
-        left_pad(date.getUTCHours(), 2, "0"));
+        left_pad(date.year(), 4, "0"),
+        left_pad(date.month(), 2, "0"),
+        left_pad(date.date(), 2, "0"),
+        left_pad(date.hour(), 2, "0"));
 }
 
 
 function bin_search(start, end, callback)
 {
-    date_to_hour(start);
-    date_to_hour(end);
+    floor_to_hour(start);
+    floor_to_hour(end);
 
-    if (end.getTime() - start.getTime() <= 1000 * 60 * 60) {
+    if (end.diff(start) <= 1000 * 60 * 60) {
         const key = s3_key(start);
         /* check if start exists, if not then start should returned
          * otherwise end */
@@ -83,7 +85,7 @@ function bin_search(start, end, callback)
     }
 
     var mid = mid_date(start, end);
-    console.log("probe " + mid);
+    console.log("probe " + mid.format());
 
     const key = s3_key(mid);
 
@@ -144,10 +146,9 @@ function fetch_date(date, callback)
 function fetch_range(start, end, callback) {
     fetch_date(start)
     .then(function() {
-        var hours = start.getUTCHours();
-        start.setUTCHours(hours + 1);
+        start.add(1, "hours");
 
-        if (start > end)
+        if (start.isAfter(end))
             callback();
         else
             fetch_range(start, end, callback);
@@ -162,12 +163,12 @@ var end = moment.utc();
 end.subtract(1, "hours");
 
 bin_search(
-    start.toDate(),
-    end.toDate(),
+    start,
+    end,
     function(err, data) {
         if (err) console.log(err);
         if (data) {
-            fetch_range(data, end.toDate(), function(err) {
+            fetch_range(data, end, function(err) {
                 if (err) console.log(err);
             });
         }
