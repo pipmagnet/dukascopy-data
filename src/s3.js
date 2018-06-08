@@ -8,26 +8,30 @@ exports.store = function(bucket)
 
 }
 
-exports.store.prototype.exists = function(key, callback)
+exports.store.prototype.exists = function(key)
 {
-    s3.headObject({
-        "Bucket": this.bucket_name,
+    const bucket_name = this.bucket_name;
+
+    return s3.headObject({
+        "Bucket": bucket_name,
         "Key": key,
-    }, function(err, data) {
-        if (err == null)
-            callback(null, true);
-        else if (err.code == "NotFound")
-            callback(null, false);
+    }).promise()
+    .then(function() {
+        return true;
+    })
+    .catch(function(error) {
+        if (error.code == "NotFound")
+            return false;
         else
-            callback(err);
+            throw error;
     });
 }
 
-exports.store.prototype.put = function(key, body, callback)
+exports.store.prototype.put = function(key, body)
 {
-    s3.putObject({
+    return s3.putObject({
         "Bucket": this.bucket_name,
         "Key": key,
         "Body": body
-    }, callback);
+    }).promise();
 }

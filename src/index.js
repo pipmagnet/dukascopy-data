@@ -67,13 +67,18 @@ function bin_search(start, end, callback)
         const key = s3_key(start);
         /* check if start exists, if not then start should returned
          * otherwise end */
-        store.exists(key, function(err, exists) {
-            if (err)
-                callback(err);
-            else if (exists)
+        store.exists(key)
+        .then(function(does_exist) {
+            if (does_exist)
                 callback(null, end);
             else
                 callback(null, start);
+        })
+        .catch(function(error) {
+            if (error)
+                callback(error);
+            else
+                callback(Error("store exists failed"));
         });
         return;
     }
@@ -83,13 +88,18 @@ function bin_search(start, end, callback)
 
     const key = s3_key(mid);
 
-    store.exists(key, function(err, exists) {
-        if (err)
-            callback(err);
-        else if (exists)
+    store.exists(key)
+    .then(function(does_exist) {
+        if (does_exist)
             bin_search(mid, end, callback);
         else
             bin_search(start, mid, callback);
+    })
+    .catch(function(error) {
+        if (error)
+            callback(error);
+        else
+            callback(Error("store exists failed"));
     });
 }
 
@@ -130,14 +140,7 @@ function fetch_date(date, callback)
         });
     })
     .then(function(tickdata) {
-        return new Promise(function(resolve, reject) {
-            store.put(key, tickdata, function cb(err) {
-                if (err == null)
-                    resolve();
-                else
-                    reject(err);
-            });
-        });
+        return store.put(key, tickdata);
     })
     .then(function() { callback() })
     .catch(function(err) {
