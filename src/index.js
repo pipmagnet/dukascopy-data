@@ -9,15 +9,17 @@ const moment = require("moment");
 
 const s3store = require("./s3.js");
 
-
 const args = minimist(process.argv.slice(2), {
     default: {
         i: "EURUSD",
-        b: "ticktech-data"
+        b: "ticktech-data",
+        s: "2004-01-01",
     }
 });
 
 const instrument = args.i;
+const startdate = moment.utc(args.s);
+const enddate = moment.utc(args.e); // if e is undefined then we get the current time
 const store = new s3store.store(args.b);
 
 function floor_to_hour(date)
@@ -109,7 +111,7 @@ function fetch_date(date)
             if (err)
                 reject(err);
             else if (response.statusCode / 100 != 2)
-                reject("HTTP error " + response.statusCode);
+                reject(Error("HTTP error " + response.statusCode));
             else
                 resolve(body);
         });
@@ -142,16 +144,11 @@ function fetch_range(start, end) {
 }
 
 
-var start = moment.utc([2004, 0, 1]);
-var end = moment.utc();
-
 /* substract one hour, because an hour must be passed completely before we can fetch it */
-end.subtract(1, "hours");
+enddate.subtract(1, "hours");
 
-bin_search(
-    start,
-    end)
+bin_search(startdate, enddate)
 .then(function(start_date) {
-    return fetch_range(start_date, end);
+    return fetch_range(start_date, enddate);
 })
 .catch(console.log);
