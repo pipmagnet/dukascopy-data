@@ -109,7 +109,7 @@ function fetch_date(date, callback)
     const url = dukascopy_url(date);
     const key = s3_key(date);
 
-    new Promise(function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
         console.log("Requesting " + url + " ...");
 
         request({
@@ -132,38 +132,26 @@ function fetch_date(date, callback)
             return lzma.decompress(body);
     })
     .then(function(tickdata) {
-        return new Promise(function(resolve, reject) {
-            if (tickdata.length % 20 != 0)
-                reject(Error("Invalid dukascopy tickfile"));
-            else
-                resolve(tickdata);
-        });
+        if (tickdata.length % 20 != 0)
+            throw Error("Invalid dukascopy tickfile");
+        else
+            return tickdata;
     })
     .then(function(tickdata) {
         return store.put(key, tickdata);
-    })
-    .then(function() { callback() })
-    .catch(function(err) {
-        if (err)
-            callback(err);
-        else
-            callback(Error("Failed download tickdata"));
     });
 }
 
 function fetch_range(start, end, callback) {
-    fetch_date(start, function(err) {
-        if (err)
-            callback(err)
-        else {
-            var hours = start.getUTCHours();
-            start.setUTCHours(hours + 1);
+    fetch_date(start)
+    .then(function() {
+        var hours = start.getUTCHours();
+        start.setUTCHours(hours + 1);
 
-            if (start > end)
-                callback();
-            else
-                fetch_range(start, end, callback);
-        }
+        if (start > end)
+            callback();
+        else
+            fetch_range(start, end, callback);
     });
 }
 
