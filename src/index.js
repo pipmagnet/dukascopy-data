@@ -124,18 +124,20 @@ function fetch_date(date, callback)
     })
     .then(function(tickdata) {
         return new Promise(function(resolve, reject) {
-
-            function cb(err) {
+            if (tickdata.length % 20 != 0)
+                reject(Error("Invalid dukascopy tickfile"));
+            else
+                resolve(tickdata);
+        });
+    })
+    .then(function(tickdata) {
+        return new Promise(function(resolve, reject) {
+            store.put(key, tickdata, function cb(err) {
                 if (err == null)
                     resolve();
                 else
                     reject(err);
-            }
-
-            if (tickdata.length % 20 != 0)
-                reject("invalid dukascopy tickfile");
-            else
-                store.put(key, tickdata, cb);
+            });
         });
     })
     .then(function() { callback() })
@@ -155,11 +157,10 @@ function fetch_range(start, end, callback) {
             var hours = start.getUTCHours();
             start.setUTCHours(hours + 1);
 
-            //if (start > end) {
-                //callback();
-            //} else {
+            if (start > end)
+                callback();
+            else
                 fetch_range(start, end, callback);
-            //}
         }
     });
 }
