@@ -5,15 +5,12 @@ const s3 = new AWS.S3();
 exports.store = function(bucket)
 {
     this.bucket_name = bucket;
-
 }
 
 exports.store.prototype.exists = function(key)
 {
-    const bucket_name = this.bucket_name;
-
     return s3.headObject({
-        "Bucket": bucket_name,
+        "Bucket": this.bucket_name,
         "Key": key,
     }).promise()
     .then(function() {
