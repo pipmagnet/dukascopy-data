@@ -126,10 +126,7 @@ function fetch_date(date)
         if (tickdata.length % 20 != 0)
             throw Error("Invalid dukascopy tickfile");
         else
-            return tickdata;
-    })
-    .then(function(tickdata) {
-        return store.put(key, tickdata);
+            return store.put(key, tickdata);
     });
 }
 
