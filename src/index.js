@@ -2,11 +2,10 @@
 const request = require("request");
 const left_pad = require("leftpad");
 const util = require("util");
-const stream = require("stream");
 const lzma = require("lzma-native");
 const fs = require("fs");
-const streamBuffers = require("stream-buffers");
 const minimist = require("minimist");
+const moment = require("moment");
 
 const s3store = require("./s3.js");
 
@@ -166,18 +165,20 @@ function fetch_range(start, end, callback) {
 }
 
 
-var start = new Date(Date.UTC(2004, 0, 1));
-var end = new Date(Date.now());
-/* substract one hour, an hour must be passed completely before we can fetch it */
-end.setHours(end.getHours() - 1);
+
+var start = moment.utc([2004, 0, 1]);
+var end = moment.utc();
+
+/* substract one hour, because an hour must be passed completely before we can fetch it */
+end.subtract(1, "hours");
 
 bin_search(
-    start,
-    end,
+    start.toDate(),
+    end.toDate(),
     function(err, data) {
         if (err) console.log(err);
         if (data) {
-            fetch_range(data, end, function(err) {
+            fetch_range(data, end.toDate(), function(err) {
                 if (err) console.log(err);
             });
         }

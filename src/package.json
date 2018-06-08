@@ -15,10 +15,10 @@
     "lzma-native": "^3.0.8",
     "minimist": "^1.2.0",
     "mocha": "^4.0.1",
+    "moment": "^2.22.2",
     "nan": "^2.10.0",
     "node-gyp": "^3.6.2",
     "node-pre-gyp": "^0.10.0",
-    "request": "^2.87.0",
-    "stream-buffers": "^3.0.1"
+    "request": "^2.87.0"
   }
 }
