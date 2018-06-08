@@ -9,17 +9,16 @@ const moment = require("moment");
 
 const s3store = require("./s3.js");
 
-const bucket = "ticktech-data";
 
 const args = minimist(process.argv.slice(2), {
     default: {
-        i: "EURUSD"
+        i: "EURUSD",
+        b: "ticktech-data"
     }
 });
 
 const instrument = args.i;
-
-const store = new s3store.store(bucket);
+const store = new s3store.store(args.b);
 
 function date_to_hour(date)
 {
@@ -154,7 +153,6 @@ function fetch_range(start, end, callback) {
             fetch_range(start, end, callback);
     });
 }
-
 
 
 var start = moment.utc([2004, 0, 1]);
