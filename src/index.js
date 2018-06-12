@@ -9,18 +9,20 @@ const moment = require("moment");
 
 const s3store = require("./s3.js");
 
-const args = minimist(process.argv.slice(2), {
-    default: {
-        i: "EURUSD",
-        b: "ticktech-data",
-        s: "2004-01-01",
-    }
-});
+const args = minimist(process.argv.slice(2));
 
-const instrument = args.i;
-const startdate = moment.utc(args.s);
-const enddate = moment.utc(args.e); // if e is undefined then we get the current time
-const store = new s3store.store(args.b);
+if (args._.length < 3 || args._.length > 4) {
+    process.exitCode = 1;
+    console.log("Invalid arguments");
+    return;
+}
+
+const instrument = args._[0];
+const store = new s3store.store(args._[1]);
+const startdate = moment.utc(args._[2]);
+const enddate = moment.utc(args._[3]); // if e is undefined then we get the current time
+const full_sweep = args.f;
+
 
 function floor_to_hour(date)
 {
@@ -73,9 +75,9 @@ function bin_search(start, end, callback)
         return store.exists(key)
         .then(function(does_exist) {
             if (does_exist)
-                return end;
+                return end.clone();
             else
-                return start;
+                return start.clone();
         })
         return;
     }
@@ -95,10 +97,9 @@ function bin_search(start, end, callback)
 }
 
 
-function fetch_date(date)
+function fetch_date(date, key)
 {
     const url = dukascopy_url(date);
-    const key = s3_key(date);
 
     return new Promise(function(resolve, reject) {
         console.log("Requesting " + url + " ...");
@@ -130,13 +131,29 @@ function fetch_date(date)
     });
 }
 
-function fetch_range(start, end) {
-    return fetch_date(start)
+function fetch_range(start, end, overwrite) {
+    const key = s3_key(start);
+
+    return new Promise(function(resolve, reject) {
+        if (!overwrite) {
+            console.log("check " + key);
+            store.exists(key)
+            .then(resolve)
+            .catch(reject);
+        } else {
+            resolve(false);
+        }
+    })
+    .then(function(exists) {
+        if (!exists)
+            return fetch_date(start, key);
+    })
     .then(function() {
+
         start.add(1, "hours");
 
         if (!start.isAfter(end))
-            return fetch_range(start, end);
+            return fetch_range(start, end, overwrite);
     });
 }
 
@@ -144,8 +161,13 @@ function fetch_range(start, end) {
 /* substract one hour, because an hour must be passed completely before we can fetch it */
 enddate.subtract(1, "hours");
 
-bin_search(startdate, enddate)
-.then(function(start_date) {
-    return fetch_range(start_date, enddate);
-})
-.catch(console.log);
+if (full_sweep) {
+    fetch_range(startdate, enddate, false).
+        catch(console.log);
+} else {
+    bin_search(startdate, enddate)
+        .then(function(start_date) {
+            return fetch_range(start_date, enddate, true);
+        })
+    .catch(console.log);
+}

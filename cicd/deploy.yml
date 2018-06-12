@@ -164,8 +164,9 @@ Resources:
                 Command:
                     - node
                     - /usr/src/app/index.js
-                    - -i
                     - Ref::instrument
+                    - ticktech-data
+                    - 2004-01-01
             RetryStrategy:
                 Attempts: 1
             Parameters:
